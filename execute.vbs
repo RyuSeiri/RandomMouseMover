@@ -35,8 +35,10 @@ End Function
 
 
 Sub Start() 
-    Call MoveMouse()
-    Call MouseClick()
+    'stop space key
+    Const VK_SPACE = &H20 ' The SPACEBAR key.
+    Call KeybordEvent(VK_SPACE, 0, 2, 0)
+    Call KeybordEvent(VK_SPACE, 0, 2, 0)
     WScript.Sleep 60000 ' 60000 milliseconds equals 1 minutes
     Call Start() ' Move the mouse again
 End Sub
@@ -81,6 +83,8 @@ Public Sub MouseClick()
     Const VK_SHIFT = &H10 ' The SHIFT key.
     Const VK_ENTER = &HD ' The ENTER key.
     Const VK_SPACE = &H20 ' The SPACEBAR key.
+    ' Key Release
+    Call KeybordEvent(VK_SPACE, 0, 2, 0)
     Dim dwFlags
     dwFlags = MOUSEEVENTF_LEFTDOWN Or MOUSEEVENTF_LEFTUP
     Call KeybordEvent(VK_CTL, 0, 3, 0)
@@ -102,7 +106,6 @@ Sub KeybordEvent(bVk, bScan, dwFlags, dwExtraInfo)
     strFunction = Replace(Replace(Replace(Replace(command, "$1", bVk), "$2", bScan), "$3", dwFlags), "$4", dwExtraInfo)
     Call Excel.ExecuteExcel4Macro(strFunction)
 End Sub
-
 
 Sub CloseScript()
     Dim objWMIService, colProcess, objProcess
