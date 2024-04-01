@@ -79,6 +79,8 @@ Public Sub MouseClick()
     Const MOUSEEVENTF_LEFTUP = &H4 ' The left button was released.
     Const VK_CTL = &H11 ' The CTRL key.
     Const VK_SHIFT = &H10 ' The SHIFT key.
+    Const VK_ENTER = &HD ' The ENTER key.
+    Const VK_SPACE = &H20 ' The SPACEBAR key.
     Dim dwFlags
     dwFlags = MOUSEEVENTF_LEFTDOWN Or MOUSEEVENTF_LEFTUP
     Call KeybordEvent(VK_CTL, 0, 3, 0)
