@@ -36,7 +36,7 @@ End Function
 
 Sub Start() 
     Call MoveMouse()
-    Call MouseWheelEvent()
+    Call MouseClick()
     WScript.Sleep 60000 ' 60000 milliseconds equals 1 minutes
     Call Start() ' Move the mouse again
 End Sub
@@ -77,16 +77,27 @@ End sub
 Public Sub MouseClick()
     Const MOUSEEVENTF_LEFTDOWN = &H2 ' The left button was pressed.
     Const MOUSEEVENTF_LEFTUP = &H4 ' The left button was released.
+    Const VK_CTL = &H11 ' The CTRL key.
+    Const VK_SHIFT = &H10 ' The SHIFT key.
     Dim dwFlags
     dwFlags = MOUSEEVENTF_LEFTDOWN Or MOUSEEVENTF_LEFTUP
+    Call KeybordEvent(VK_CTL, 0, 3, 0)
     Call MouseEvent(dwFlags, 0, 0, 0, 0)
 End Sub
 
 
 Sub MouseEvent(dwFlags, dx, dy, dwData, dwExtraInfo)
     Dim strFunction
-    const command = "CALL(""user32"",""mouse_event"",""JJJJJj"", $1, $2, $3, $4, $5)"
+    Const command = "CALL(""user32"",""mouse_event"",""JJJJJj"", $1, $2, $3, $4, $5)"
     strFunction = Replace(Replace(Replace(Replace(Replace(command, "$1", dwFlags), "$2", dx), "$3", dy), "$4", dwData), "$5", dwExtraInfo)
+    Call Excel.ExecuteExcel4Macro(strFunction)
+End Sub
+
+
+Sub KeybordEvent(bVk, bScan, dwFlags, dwExtraInfo)
+    Dim strFunction
+    Const command = "CALL(""user32"",""keybd_event"",""JJJJJ"", $1, $2, $3, $4)"
+    strFunction = Replace(Replace(Replace(Replace(command, "$1", bVk), "$2", bScan), "$3", dwFlags), "$4", dwExtraInfo)
     Call Excel.ExecuteExcel4Macro(strFunction)
 End Sub
 
