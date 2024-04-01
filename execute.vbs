@@ -1,6 +1,7 @@
 Option Explicit
 
-Dim strProcessName, WshShell
+Dim strProcessName, WshShell, Excel
+Set Excel = WScript.CreateObject("Excel.Application")
 strProcessName = "wscript.exe"
 ' Check if the script is already running
 If IsScriptRunning()  Then
@@ -8,43 +9,8 @@ If IsScriptRunning()  Then
 Else
     ' If the script is not running, start the script and display info
     MsgBox "started", vbInformation, "info"
-    Call MoveMouse()
+    Call Start()
 End If
-
-
-Sub MoveMouse()
-    Dim WshShell, intScreenWidth, intScreenHeight, Excel, Command
-    Randomize ' Initialize the random number seed
-    ' Get the screen size
-    intScreenWidth = 1000 ' Get the screen width
-    intScreenHeight = 1000 ' Get the screen height
-    ' Generate random new position
-    Dim newX, newY
-    newX = Int(Rnd * intScreenWidth) ' Generate a random X coordinate
-    newY = Int(Rnd * intScreenHeight) ' Generate a random Y coordinate
-    Set Excel = WScript.CreateObject("Excel.Application")
-    Command = "CALL(""user32.dll"", ""SetCursorPos"", ""JJJ"", "& newX &", "& newY &")"
-    Excel.ExecuteExcel4Macro(command)
-    ' Start the timer, move the mouse again after 3 minutes
-    WScript.Sleep 180000 ' 180000 milliseconds equals 3 minutes
-    Call MoveMouse() ' Move the mouse again
-End Sub
-
-
-Sub CloseScript()
-    Dim objWMIService, colProcess, objProcess
-    ' Get the running script process
-    Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & "." & "\root\cimv2")
-    Set colProcess = objWMIService.ExecQuery("Select * from Win32_Process Where Name = '" & strProcessName & "'")
-
-    ' Close the script and display the closing message
-    MsgBox "Stopped", vbInformation, "info"
-    For Each objProcess In colProcess
-        If objProcess.Name = strProcessName Then
-            objProcess.Terminate()
-        End If
-    Next
-End Sub
 
 
 Function IsScriptRunning()
@@ -66,3 +32,76 @@ Function IsScriptRunning()
         IsScriptRunning = False
     End If
 End Function
+
+
+Sub Start() 
+    Call MoveMouse()
+    Call MouseWheelEvent()
+    WScript.Sleep 60000 ' 60000 milliseconds equals 1 minutes
+    Call Start() ' Move the mouse again
+End Sub
+
+
+Sub MoveMouse()
+    Dim WshShell, intScreenWidth, intScreenHeight, command
+    Randomize ' Initialize the random number seed
+    ' Get the screen size
+    intScreenWidth = 1000 ' Get the screen width
+    intScreenHeight = 1000 ' Get the screen height
+    ' Generate random new position
+    Dim newX, newY
+    newX = Int(Rnd * intScreenWidth) ' Generate a random X coordinate
+    newY = Int(Rnd * intScreenHeight) ' Generate a random Y coordinate
+    command = "CALL(""user32.dll"", ""SetCursorPos"", ""JJJ"", "& newX &", "& newY &")"
+    Excel.ExecuteExcel4Macro(command)
+    ' Start the timer, move the mouse again after 3 minutes
+End Sub
+
+Dim Minus
+Minus = True
+Sub MouseWheelEvent()
+    Const MOUSEEVENTF_WHEEL = &H800 ' The wheel was rolled.
+    Randomize ' Initialize the random number seed
+    Dim randNum
+    If Minus Then
+        randNum = Int(Rnd * 300) ' Generate a random number
+        Minus = False
+    Else
+        randNum = Int(Rnd * 300) * -1 ' Generate a random number
+        Minus = True
+    End If
+    Call MouseEvent(MOUSEEVENTF_WHEEL, 0, 0, randNum, 0)
+End sub
+
+
+Public Sub MouseClick()
+    Const MOUSEEVENTF_LEFTDOWN = &H2 ' The left button was pressed.
+    Const MOUSEEVENTF_LEFTUP = &H4 ' The left button was released.
+    Dim dwFlags
+    dwFlags = MOUSEEVENTF_LEFTDOWN Or MOUSEEVENTF_LEFTUP
+    Call MouseEvent(dwFlags, 0, 0, 0, 0)
+End Sub
+
+
+Sub MouseEvent(dwFlags, dx, dy, dwData, dwExtraInfo)
+    Dim strFunction
+    const command = "CALL(""user32"",""mouse_event"",""JJJJJj"", $1, $2, $3, $4, $5)"
+    strFunction = Replace(Replace(Replace(Replace(Replace(command, "$1", dwFlags), "$2", dx), "$3", dy), "$4", dwData), "$5", dwExtraInfo)
+    Call Excel.ExecuteExcel4Macro(strFunction)
+End Sub
+
+
+Sub CloseScript()
+    Dim objWMIService, colProcess, objProcess
+    ' Get the running script process
+    Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & "." & "\root\cimv2")
+    Set colProcess = objWMIService.ExecQuery("Select * from Win32_Process Where Name = '" & strProcessName & "'")
+
+    ' Close the script and display the closing message
+    MsgBox "Stopped", vbInformation, "info"
+    For Each objProcess In colProcess
+        If objProcess.Name = strProcessName Then
+            objProcess.Terminate()
+        End If
+    Next
+End Sub
